@@ -6,9 +6,12 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contr
 
 interface StakedToken {
 	function totalSupply() external view returns (uint);
+
 }
 
 interface RewardToken {
+	function balanceOf(address account) external view returns (uint256);
+	function transfer(address recipient, uint256 amount) external returns (bool);
 
 }
 
@@ -69,7 +72,7 @@ contract staking{
 
         if (user.amount > 0) {
             uint256 pending = user.depositAmount.mul(rewardTillNowPerShare).div(1e18).sub(user.paidReward);
-        	safeSushiTransfer(msg.sender, pending);
+        	safeRewardTransfer(msg.sender, pending);
         }
 		// stakedToken.safeTransferFrom(address(msg.sender), address(this), _amount);
 		safeTransferFrom(address(msg.sender), address(this), _amount);
@@ -85,7 +88,7 @@ contract staking{
         update();
 		
 		uint256 pending = user.depositAmount.mul(rewardTillNowPerShare).div(1e18).sub(user.paidReward);
-		safeSushiTransfer(msg.sender, pending);
+		safeRewardTransfer(msg.sender, pending);
 
 		user.depositAmount = user.depositAmount.sub(_amount);
 
@@ -95,6 +98,29 @@ contract staking{
         user.paidReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18);
         emit Withdraw(msg.sender, _amount);
     }
+
+    // Withdraw without caring about rewards. EMERGENCY ONLY.
+    function emergencyWithdraw() public {
+		UserData storage user = users[msg.sender];
+
+        // stakedToken.safeTransfer(address(msg.sender), user.amount);
+		safeTransfer(address(msg.sender), user.amount);
+
+        emit EmergencyWithdraw(msg.sender, user.amount);
+        user.depositAmount = 0;
+        user.paidReward = 0;
+    }
+
+    // Safe reward transfer function, just in case pool do not have enough reward. (if rounding error)
+    function safeRewardTransfer(address _to, uint256 _amount) internal {
+        uint256 rewardBalance = rewardToken.balanceOf(address(this));
+        if (_amount > rewardBalance) {
+            rewardToken.transfer(_to, rewardBalance);
+        } else {
+            rewardToken.transfer(_to, _amount);
+        }
+    }
+
 
 }
 
