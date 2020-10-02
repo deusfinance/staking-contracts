@@ -44,6 +44,7 @@ contract staking{
 		lastRewardedBlock = block.number;
 	}
 
+	// Update reward variables of the pool to be up-to-date.
 	function update() public {
 		if (block.number <= lastRewardedBlock) {
 			return;
@@ -55,6 +56,7 @@ contract staking{
 		lastRewardedBlock = block.number;
     }
 
+	// View function to see pending reward on frontend.
 	function pendingReward(address _user) external view returns (uint256) {
 		UserData storage user = users[_user];
 		uint256 accRewardPerShare = rewardTillNowPerShare;
