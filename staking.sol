@@ -5,8 +5,9 @@ pragma solidity 0.6.12;
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol";
 
 interface StakedToken {
-	function totalSupply() external view returns (uint);
-
+	function balanceOf(address account) external view returns (uint256);
+	function transfer(address recipient, uint256 amount) external returns (bool);
+	function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
 }
 
 interface RewardToken {
@@ -52,7 +53,7 @@ contract staking{
 		// uint256 lpSupply = stakedToken.totalSupply();
 		uint256 rewardAmount = (block.number - lastRewardedBlock).mul(rewardPerBlock);
 		
-		rewardTillNowPerShare = rewardTillNowPerShare.add(rewardAmount.mul(1e18).div(stakedToken.totalSupply()));
+		rewardTillNowPerShare = rewardTillNowPerShare.add(rewardAmount.mul(1e18).div(stakedToken.balanceOf(address(this))));
 		lastRewardedBlock = block.number;
     }
 
@@ -63,7 +64,7 @@ contract staking{
 
 		if (block.number > lastRewardedBlock) {
 			uint256 rewardAmount = (block.number - lastRewardedBlock).mul(rewardPerBlock);
-            accRewardPerShare = accRewardPerShare.add(rewardAmount.mul(1e18).div(stakedToken.totalSupply()));
+            accRewardPerShare = accRewardPerShare.add(rewardAmount.mul(1e18).div(stakedToken.balanceOf(address(this))));
         }
         return user.depositAmount.mul(accRewardPerShare).div(1e18).sub(user.paidReward);
 	}
@@ -94,7 +95,6 @@ contract staking{
 
 		user.depositAmount = user.depositAmount.sub(_amount);
 
-		// stakedToken.safeTransfer(address(msg.sender), _amount);
 		safeTransfer(address(msg.sender), _amount);
 
         user.paidReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18);
@@ -105,7 +105,6 @@ contract staking{
     function emergencyWithdraw() public {
 		UserData storage user = users[msg.sender];
 
-        // stakedToken.safeTransfer(address(msg.sender), user.amount);
 		safeTransfer(address(msg.sender), user.depositAmount);
 
         emit EmergencyWithdraw(msg.sender, user.depositAmount);
@@ -124,11 +123,11 @@ contract staking{
     }
 
 	function safeTransfer(address _to, uint256 _amount) internal {
-		// TODO
+		stakedToken.transfer(_to, _amount);
 	}
 
 	function safeTransferFrom(address _from, address _to, uint256 _amount) internal {
-		// TODO
+		stakedToken.transferFrom(_from, _to, _amount);
 	}
 
 
