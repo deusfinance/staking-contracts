@@ -40,7 +40,7 @@ contract staking{
 
 	constructor (address _stakedToken, address _rewardToken) public {
 		stakedToken = StakedToken(_stakedToken);
-		rewardToken = RewardToken(_rewardToken)
+		rewardToken = RewardToken(_rewardToken);
 		lastRewardedBlock = block.number;
 	}
 
@@ -72,7 +72,7 @@ contract staking{
 		UserData storage user = users[msg.sender];
         update();
 
-        if (user.amount > 0) {
+        if (user.depositAmount > 0) {
             uint256 pending = user.depositAmount.mul(rewardTillNowPerShare).div(1e18).sub(user.paidReward);
         	safeRewardTransfer(msg.sender, pending);
         }
@@ -106,9 +106,9 @@ contract staking{
 		UserData storage user = users[msg.sender];
 
         // stakedToken.safeTransfer(address(msg.sender), user.amount);
-		safeTransfer(address(msg.sender), user.amount);
+		safeTransfer(address(msg.sender), user.depositAmount);
 
-        emit EmergencyWithdraw(msg.sender, user.amount);
+        emit EmergencyWithdraw(msg.sender, user.depositAmount);
         user.depositAmount = 0;
         user.paidReward = 0;
     }
@@ -122,6 +122,15 @@ contract staking{
             rewardToken.transfer(_to, _amount);
         }
     }
+
+	function safeTransfer(address _to, uint256 _amount) internal {
+		// TODO
+	}
+
+	function safeTransferFrom(address _from, address _to, uint256 _amount) internal {
+		// TODO
+	}
+
 
 
 }
