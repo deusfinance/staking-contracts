@@ -16,7 +16,7 @@ interface RewardToken {
 
 }
 
-contract staking{
+contract Staking{
 
 	struct UserData {
 		uint256 depositAmount;
