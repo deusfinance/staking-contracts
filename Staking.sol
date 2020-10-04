@@ -74,17 +74,15 @@ contract Staking{
 		UserData storage user = users[msg.sender];
         update();
 
-		uint256 totalReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18);
-
         if (user.depositAmount > 0) {
-            uint256 _pendingReward = totalReward.sub(user.paidReward);
+            uint256 _pendingReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18).sub(user.paidReward);
 			rewardToken.transfer(msg.sender, _pendingReward);
 			emit RewardClaimed(msg.sender, _pendingReward);
         }
 
 		user.depositAmount = user.depositAmount.add(_amount);
-        user.paidReward = totalReward;
-		
+        user.paidReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18);
+
 		stakedToken.transferFrom(address(msg.sender), address(this), _amount);
         emit Deposit(msg.sender, _amount);
     }
