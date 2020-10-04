@@ -30,7 +30,7 @@ contract staking{
 
 	uint256 public rewardTillNowPerShare = 0;
 	uint256 public lastRewardedBlock;
-	uint256 public rewardPerBlock = 100 * 10**18;
+	uint256 public rewardPerBlock = 79364282539682540; //0.07936428253968254*10**18
 
 	StakedToken public stakedToken;
 	RewardToken public rewardToken;
@@ -38,7 +38,8 @@ contract staking{
     event Deposit(address user, uint256 amount);
     event Withdraw(address user, uint256 amount);
     event EmergencyWithdraw(address user, uint256 amount);
-
+	event RewardClaimed(address user, uint256 amount);
+	
 	constructor (address _stakedToken, address _rewardToken) public {
 		stakedToken = StakedToken(_stakedToken);
 		rewardToken = RewardToken(_rewardToken);
@@ -75,10 +76,9 @@ contract staking{
 
         if (user.depositAmount > 0) {
             uint256 pending = user.depositAmount.mul(rewardTillNowPerShare).div(1e18).sub(user.paidReward);
-        	safeRewardTransfer(msg.sender, pending);
+			rewardToken.transfer(_to, _amount);
         }
-		// stakedToken.safeTransferFrom(address(msg.sender), address(this), _amount);
-		safeTransferFrom(address(msg.sender), address(this), _amount);
+		stakedToken.transferFrom(address(msg.sender), address(this), _amount);
 
 		user.depositAmount = user.depositAmount.add(_amount);
         user.paidReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18);
@@ -90,14 +90,16 @@ contract staking{
         require(user.depositAmount >= _amount, "withdraw amount exceeds deposited amount");
         update();
 		
-		uint256 pending = user.depositAmount.mul(rewardTillNowPerShare).div(1e18).sub(user.paidReward);
-		safeRewardTransfer(msg.sender, pending);
+
+		uint256 totalReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18)
+		uint256 pendingReward = totalReward.sub(user.paidReward);
+        user.paidReward = totalReward;
+		rewardToken.transfer(_to, _amount);
+		emit RewardClaimed(msg.sender, pendingReward);
+
 
 		user.depositAmount = user.depositAmount.sub(_amount);
-
-		safeTransfer(address(msg.sender), _amount);
-
-        user.paidReward = user.depositAmount.mul(rewardTillNowPerShare).div(1e18);
+		stakedToken.transfer(address(msg.sender), _amount);
         emit Withdraw(msg.sender, _amount);
     }
 
@@ -105,32 +107,28 @@ contract staking{
     function emergencyWithdraw() public {
 		UserData storage user = users[msg.sender];
 
-		safeTransfer(address(msg.sender), user.depositAmount);
+		stakedToken.transfer(address(msg.sender), user.depositAmount);
 
         emit EmergencyWithdraw(msg.sender, user.depositAmount);
+
         user.depositAmount = 0;
         user.paidReward = 0;
     }
 
-    // Safe reward transfer function, just in case pool do not have enough reward. (if rounding error)
-    function safeRewardTransfer(address _to, uint256 _amount) internal {
-        uint256 rewardBalance = rewardToken.balanceOf(address(this));
-        if (_amount > rewardBalance) {
-            rewardToken.transfer(_to, rewardBalance);
-        } else {
-            rewardToken.transfer(_to, _amount);
-        }
-    }
+    // Safe reward transfer function, just in case pool do not have enough reward.
+    // function safeRewardTransfer(address _to, uint256 _amount) internal {
+    //     uint256 rewardBalance = rewardToken.balanceOf(address(this));
+    //     require(rewardBalance > _amount, "insufficient rewardToken balance");
+    //     rewardToken.transfer(_to, _amount);
+    // }
 
-	function safeTransfer(address _to, uint256 _amount) internal {
-		stakedToken.transfer(_to, _amount);
-	}
+	// function safeTransfer(address _to, uint256 _amount) internal {
+	// 	stakedToken.transfer(_to, _amount);
+	// }
 
-	function safeTransferFrom(address _from, address _to, uint256 _amount) internal {
-		stakedToken.transferFrom(_from, _to, _amount);
-	}
-
-
+	// function safeTransferFrom(address _from, address _to, uint256 _amount) internal {
+	// 	stakedToken.transferFrom(_from, _to, _amount);
+	// }
 
 }
 
