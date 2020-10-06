@@ -74,7 +74,7 @@ contract DEAToken is ERC20, AccessControl{
     }
 	
 	function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
-        emit Transfer(sender, recipient, amount.mul(rebaseMultiplierScale).div(rebaseMultiplier));
+        emit Transfer(from, to, value.mul(rebaseMultiplierScale).div(rebaseMultiplier));
     }
 }
 //Dar panah khoda
