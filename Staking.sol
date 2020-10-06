@@ -30,7 +30,7 @@ contract Staking is Ownable {
 
 	uint256 public rewardTillNowPerToken = 0;
 	uint256 public lastUpdatedBlock;
-	uint256 public rewardPerBlock; // = 79364282539682540; 0.07936428253968254*10**18
+	uint256 public rewardPerBlock;
 	uint256 public scale = 1e18;
 
 	StakedToken public stakedToken;
@@ -53,11 +53,10 @@ contract Staking is Ownable {
 		if (block.number <= lastUpdatedBlock) {
 			return;
 		}
-		// uint256 lpSupply = stakedToken.totalSupply();
-		uint256 totalStakedTokenSupply = stakedToken.balanceOf(address(this));
+		uint256 totalStakedToken = stakedToken.balanceOf(address(this));
 		uint256 rewardAmount = (block.number - lastUpdatedBlock).mul(rewardPerBlock);
 		
-		rewardTillNowPerToken = rewardTillNowPerToken.add(rewardAmount.mul(scale).div(totalStakedTokenSupply)); // bere to hamoon balayi
+		rewardTillNowPerToken = rewardTillNowPerToken.add(rewardAmount.mul(scale).div(totalStakedToken));
 		lastUpdatedBlock = block.number;
     }
 
@@ -66,11 +65,10 @@ contract Staking is Ownable {
 		User storage user = users[_user];
 		uint256 accRewardPerToken = rewardTillNowPerToken;
 		
-		uint256 totalStakedTokenSupply = stakedToken.balanceOf(address(this));
-		
 		if (block.number > lastUpdatedBlock) {
+			uint256 totalStakedToken = stakedToken.balanceOf(address(this));
 			uint256 rewardAmount = (block.number - lastUpdatedBlock).mul(rewardPerBlock);
-            accRewardPerToken = accRewardPerToken.add(rewardAmount.mul(scale).div(totalStakedTokenSupply));
+            accRewardPerToken = accRewardPerToken.add(rewardAmount.mul(scale).div(totalStakedToken));
         }
         return user.depositAmount.mul(accRewardPerToken).div(scale).sub(user.paidReward);
 	}
