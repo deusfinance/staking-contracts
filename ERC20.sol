@@ -213,7 +213,6 @@ contract ERC20 is Context, IERC20 {
 
         _balances[sender] = _balances[sender].sub(amount, "ERC20: transfer amount exceeds balance");
         _balances[recipient] = _balances[recipient].add(amount);
-        emit Transfer(sender, recipient, amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
@@ -232,7 +231,6 @@ contract ERC20 is Context, IERC20 {
 
         _totalSupply = _totalSupply.add(amount);
         _balances[account] = _balances[account].add(amount);
-        emit Transfer(address(0), account, amount);
     }
 
     /**
@@ -253,7 +251,6 @@ contract ERC20 is Context, IERC20 {
 
         _balances[account] = _balances[account].sub(amount, "ERC20: burn amount exceeds balance");
         _totalSupply = _totalSupply.sub(amount);
-        emit Transfer(account, address(0), amount);
     }
 
     /**
