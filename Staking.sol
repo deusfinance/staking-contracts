@@ -95,10 +95,7 @@ contract Staking is Ownable {
         require(user.depositAmount >= amount, "withdraw amount exceeds deposited amount");
         update();
 
-
-		uint256 totalReward = user.depositAmount.mul(rewardTillNowPerToken).div(scale);
-		uint256 _pendingReward = totalReward.sub(user.paidReward);
-        user.paidReward = totalReward;
+		uint256 _pendingReward = user.depositAmount.mul(rewardTillNowPerToken).div(scale).sub(user.paidReward);
 		rewardToken.transfer(msg.sender, _pendingReward);
 		emit RewardClaimed(msg.sender, _pendingReward);
 
@@ -106,6 +103,8 @@ contract Staking is Ownable {
 		user.depositAmount = user.depositAmount.sub(amount);
 		stakedToken.transfer(address(msg.sender), amount);
         emit Withdraw(msg.sender, amount);
+        
+        user.paidReward = user.depositAmount.mul(rewardTillNowPerToken).div(scale);
     }
 
     // Withdraw without caring about rewards. EMERGENCY ONLY.
