@@ -104,9 +104,7 @@ contract Staking is Ownable {
 		uint256 _pendingReward = user.depositAmount.mul(rewardTillNowPerToken).div(scale).sub(user.paidReward);
 		rewardToken.transfer(msg.sender, _pendingReward);
 		rewardToken.transfer(daoAddress, _pendingReward.div(4));
-		
 		emit RewardClaimed(msg.sender, _pendingReward);
-
 
 		user.depositAmount = user.depositAmount.sub(amount);
 		stakedToken.transfer(address(msg.sender), amount);

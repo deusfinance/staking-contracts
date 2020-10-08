@@ -68,7 +68,7 @@ contract DEAToken is ERC20, AccessControl{
 	function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
         // return super.transferFrom(sender, recipient, amount.mul(rebaseMultiplierScale).div(rebaseMultiplier));
 		_transfer(sender, recipient, amount.mul(rebaseMultiplierScale).div(rebaseMultiplier));
-        _approve(sender, _msgSender(), _allowances[sender][_msgSender()].sub(amount, "ERC20: transfer amount exceeds allowance"));
+        _approve(sender, _msgSender(), allowance(sender, _msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
 
