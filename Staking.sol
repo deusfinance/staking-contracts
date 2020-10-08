@@ -32,6 +32,7 @@ contract Staking is Ownable {
 	uint256 public lastUpdatedBlock;
 	uint256 public rewardPerBlock;
 	uint256 public scale = 1e18;
+	address public daoAddress;
 
 	StakedToken public stakedToken;
 	RewardToken public rewardToken;
@@ -46,6 +47,11 @@ contract Staking is Ownable {
 		rewardToken = RewardToken(_rewardToken);
 		rewardPerBlock = _rewardPerBlock;
 		lastUpdatedBlock = block.number;
+		daoAddress = msg.sender;
+	}
+
+	function setDaoAddress(address _daoAddress) public onlyOwner{
+		daoAddress = _daoAddress;
 	}
 
 	// Update reward variables of the pool to be up-to-date.
@@ -97,6 +103,8 @@ contract Staking is Ownable {
 
 		uint256 _pendingReward = user.depositAmount.mul(rewardTillNowPerToken).div(scale).sub(user.paidReward);
 		rewardToken.transfer(msg.sender, _pendingReward);
+		rewardToken.transfer(daoAddress, _pendingReward.div(4));
+		
 		emit RewardClaimed(msg.sender, _pendingReward);
 
 
