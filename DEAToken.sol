@@ -20,7 +20,8 @@ contract DEAToken is ERC20, AccessControl{
 	constructor() public ERC20("DEA", "DEA") {
 		_setupRole(DEFAULT_ADMIN_ROLE, msg.sender);	
 		grantRole(keccak256("REBASER_ROLE"), msg.sender);
-		_mint(msg.sender, 100);
+		grantRole(keccak256("MINTER_ROLE"), msg.sender);
+		mint(msg.sender, 100000);
 	}
 
 	function mint(address to, uint256 amount) public {
