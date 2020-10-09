@@ -9,7 +9,6 @@ contract DEAToken is ERC20, AccessControl{
 
 	using SafeMath for uint256;
 
-
 	bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 	bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
 	bytes32 public constant REBASER_ROLE = keccak256("REBASER_ROLE");
@@ -17,7 +16,6 @@ contract DEAToken is ERC20, AccessControl{
 	uint256 public rebaseMultiplier = 1e18;
 
 	event Rebase(uint256 oldCoefficient, uint256 newCoefficient);
-
 
 	constructor() public ERC20("DEA", "DEA") {
 		_setupRole(DEFAULT_ADMIN_ROLE, msg.sender);	
