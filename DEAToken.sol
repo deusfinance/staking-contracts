@@ -14,6 +14,7 @@ contract DEAToken is ERC20, AccessControl{
 	bytes32 public constant REBASER_ROLE = keccak256("REBASER_ROLE");
 
 	uint256 public rebaseMultiplier = 1e18;
+	uint256 public scale = 1e18;
 
 	event Rebase(uint256 oldCoefficient, uint256 newCoefficient);
 
@@ -21,17 +22,17 @@ contract DEAToken is ERC20, AccessControl{
 		_setupRole(DEFAULT_ADMIN_ROLE, msg.sender);	
 		grantRole(keccak256("REBASER_ROLE"), msg.sender);
 		grantRole(keccak256("MINTER_ROLE"), msg.sender);
-		mint(msg.sender, 166670);
+		mint(msg.sender, 166670e18);
 	}
 
 	function mint(address to, uint256 amount) public {
         require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
-        _mint(to, amount.div(rebaseMultiplier));
+        _mint(to, amount.mul(scale).div(rebaseMultiplier));
     }
 
 	function burn(address from, uint256 amount) public {
         require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
-        _burn(from, amount.div(rebaseMultiplier));
+        _burn(from, amount.mul(scale).div(rebaseMultiplier));
     }
 
 	function rebase(uint256 _rebaseMultiplier) public {
@@ -42,10 +43,10 @@ contract DEAToken is ERC20, AccessControl{
 
 
 	function totalSupply() public view override returns (uint256){
-		return super.totalSupply().mul(rebaseMultiplier);
+		return super.totalSupply().mul(rebaseMultiplier).div(scale);
 	}
 	function balanceOf(address account) public view override returns (uint256){
-		return super.balanceOf(account).mul(rebaseMultiplier);
+		return super.balanceOf(account).mul(rebaseMultiplier).div(scale);
 	}
 
 
@@ -62,19 +63,18 @@ contract DEAToken is ERC20, AccessControl{
         return super.decreaseAllowance(spender, subtractedValue);
     }
 
-
 	function transferFrom(address sender, address recipient, uint256 amount) public override returns (bool) {
-		_transfer(sender, recipient, amount.div(rebaseMultiplier));
+		_transfer(sender, recipient, amount.mul(scale).div(rebaseMultiplier));
         _approve(sender, _msgSender(), allowance(sender, _msgSender()).sub(amount, "ERC20: transfer amount exceeds allowance"));
         return true;
     }
 
 	function transfer(address recipient, uint256 amount) public override returns (bool) {
-        return super.transfer(recipient, amount.div(rebaseMultiplier));
+        return super.transfer(recipient, amount.mul(scale).div(rebaseMultiplier));
     }
 	
 	function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
-        emit Transfer(from, to, value.mul(rebaseMultiplier));
+        emit Transfer(from, to, value.mul(rebaseMultiplier).div(scale));
     }
 }
 
