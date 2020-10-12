@@ -1,4 +1,5 @@
-//Be name khoda
+//Be name
+//si deus si dea
 
 pragma solidity ^0.6.12;
 
@@ -19,10 +20,8 @@ contract DEAToken is ERC20, AccessControl{
     event Rebase(uint256 oldCoefficient, uint256 newCoefficient);
 
     constructor() public ERC20("DEA", "DEA") {
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);	
-        grantRole(keccak256("REBASER_ROLE"), msg.sender);
-        grantRole(keccak256("MINTER_ROLE"), msg.sender);
-        mint(msg.sender, 166670e18);
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _mint(msg.sender, 166670e18);
     }
 
     function mint(address to, uint256 amount) public {
@@ -72,7 +71,7 @@ contract DEAToken is ERC20, AccessControl{
     function transfer(address recipient, uint256 amount) public override returns (bool) {
         return super.transfer(recipient, amount.mul(scale).div(rebaseMultiplier));
     }
-    
+
     function _beforeTokenTransfer(address from, address to, uint256 value) internal virtual override {
         emit Transfer(from, to, value.mul(rebaseMultiplier).div(scale));
     }
