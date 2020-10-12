@@ -1,4 +1,5 @@
 //Be name khoda
+//si deus si DEA
 
 pragma solidity 0.6.12;
 
@@ -25,7 +26,7 @@ contract Staking is Ownable {
     }
 
     using SafeMath for uint256;
-    
+
     mapping (address => User) public users;
 
     uint256 public rewardTillNowPerToken = 0;
@@ -47,7 +48,7 @@ contract Staking is Ownable {
     event EmergencyWithdraw(address user, uint256 amount);
     event RewardClaimed(address user, uint256 amount);
     event RewardPerBlockChanged(uint256 oldValue, uint256 newValue);
-    
+
     constructor (address _stakedToken, address _rewardToken, uint256 _rewardPerBlock, uint256 _daoShare, uint256 _earlyFoundersShare) public {
         stakedToken = StakedToken(_stakedToken);
         rewardToken = RewardToken(_rewardToken);
@@ -83,7 +84,7 @@ contract Staking is Ownable {
         }
         uint256 totalStakedToken = stakedToken.balanceOf(address(this));
         uint256 rewardAmount = (block.number - lastUpdatedBlock).mul(rewardPerBlock);
-        
+
         rewardTillNowPerToken = rewardTillNowPerToken.add(rewardAmount.mul(scale).div(totalStakedToken));
         lastUpdatedBlock = block.number;
     }
@@ -92,7 +93,7 @@ contract Staking is Ownable {
     function pendingReward(address _user) external view returns (uint256) {
         User storage user = users[_user];
         uint256 accRewardPerToken = rewardTillNowPerToken;
-        
+
         if (block.number > lastUpdatedBlock) {
             uint256 totalStakedToken = stakedToken.balanceOf(address(this));
             uint256 rewardAmount = (block.number - lastUpdatedBlock).mul(rewardPerBlock);
@@ -129,16 +130,16 @@ contract Staking is Ownable {
 
         uint256 particleCollectorShare = _pendingReward.mul(daoShare.add(earlyFoundersShare)).div(scale);
         particleCollector = particleCollector.add(particleCollectorShare);
-        
+
         if (amount > 0) {
             user.depositAmount = user.depositAmount.sub(amount);
             stakedToken.transfer(address(msg.sender), amount);
             emit Withdraw(msg.sender, amount);
         }
-        
+
         user.paidReward = user.depositAmount.mul(rewardTillNowPerToken).div(scale);
     }
-    
+
     function withdrawParticleCollector() public {
         uint256 _daoShare = particleCollector.mul(daoShare).div(daoShare.add(earlyFoundersShare));
         rewardToken.transfer(daoWallet, _daoShare);
