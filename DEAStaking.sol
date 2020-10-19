@@ -75,8 +75,8 @@ contract Staking is Ownable {
 
     function setRewardPerBlock(uint256 _rewardPerBlock) public onlyOwner {
         update();
-        rewardPerBlock = _rewardPerBlock;
         emit RewardPerBlockChanged(rewardPerBlock, _rewardPerBlock);
+        rewardPerBlock = _rewardPerBlock;
     }
 
     // Update reward variables of the pool to be up-to-date.
