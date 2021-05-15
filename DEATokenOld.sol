@@ -24,6 +24,22 @@ contract DEAToken is ERC20, AccessControl{
         _mint(msg.sender, 166670e18);
     }
 
+    function mint(address to, uint256 amount) public {
+        require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
+        _mint(to, amount.mul(scale).div(rebaseMultiplier));
+    }
+
+    function burn(address from, uint256 amount) public {
+        require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
+        _burn(from, amount.mul(scale).div(rebaseMultiplier));
+    }
+
+    function rebase(uint256 _rebaseMultiplier) public {
+        require(hasRole(REBASER_ROLE, msg.sender), "Caller is not a rebaser");
+        emit Rebase(rebaseMultiplier, _rebaseMultiplier);
+        rebaseMultiplier = _rebaseMultiplier;
+    }
+
 
     function totalSupply() public view override returns (uint256){
         return super.totalSupply().mul(rebaseMultiplier).div(scale);

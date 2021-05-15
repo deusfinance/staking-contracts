@@ -10,6 +10,9 @@ contract DEAToken is ERC20, AccessControl{
 
     using SafeMath for uint256;
 
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
+    bytes32 public constant REBASER_ROLE = keccak256("REBASER_ROLE");
 
     uint256 public rebaseMultiplier = 1e18;
     uint256 public scale = 1e18;
@@ -19,6 +22,22 @@ contract DEAToken is ERC20, AccessControl{
     constructor() public ERC20("DEA", "DEA") {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _mint(msg.sender, 166670e18);
+    }
+
+    function mint(address to, uint256 amount) public {
+        require(hasRole(MINTER_ROLE, msg.sender), "Caller is not a minter");
+        _mint(to, amount.mul(scale).div(rebaseMultiplier));
+    }
+
+    function burn(address from, uint256 amount) public {
+        require(hasRole(BURNER_ROLE, msg.sender), "Caller is not a burner");
+        _burn(from, amount.mul(scale).div(rebaseMultiplier));
+    }
+
+    function rebase(uint256 _rebaseMultiplier) public {
+        require(hasRole(REBASER_ROLE, msg.sender), "Caller is not a rebaser");
+        emit Rebase(rebaseMultiplier, _rebaseMultiplier);
+        rebaseMultiplier = _rebaseMultiplier;
     }
 
 
