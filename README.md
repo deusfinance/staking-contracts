@@ -31,8 +31,8 @@ Now you can start making changes.
 
 ## Contributing
 
-Feel free to dive in! [Open](https://github.com/deusfinance/bridge-contracts/issues/new) an issue,
-[start](https://github.com/deusfinance/bridge-contracts/discussions/new) a discussion or submit a PR. For any concerns or
+Feel free to dive in! [Open](https://github.com/deusfinance/staking-contracts/issues/new) an issue,
+[start](https://github.com/deusfinance/staking-contracts/discussions/new) a discussion or submit a PR. For any concerns or
 feedback, join us on [Discord](https://discord.gg/NWfzTqeV).
 
 ## Security
